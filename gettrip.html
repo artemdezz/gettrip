@@ -84,7 +84,10 @@
         window.onload = function() {
             const params = getQueryParams();
             const dataContainer = document.getElementById('data-container');
-            dataContainer.textContent = `Received data: ${params.data}`;
+            // Создаем новый div и добавляем его к dataContainer
+            //const dataDiv = document.createElement('div');
+            dataDiv.textContent = `Received data: ${params.data}`;
+            document.body.appendChild(dataDiv);
         };
 
 
