@@ -62,7 +62,7 @@
             <tr>
                 <th>Город</th>
                 <th>Дата выезда</th>
-				<th>Дата прибытия</th>
+                <th>Дата прибытия</th>
             </tr>
         </thead>
         <tbody>
@@ -76,73 +76,52 @@
         function getQueryParams() {
             const params = new URLSearchParams(window.location.search);
             return {
-                data: params.get('chatid')
+                chatid: params.get('chatid')
             };
         }
 
-        // Получаем данные и отображаем их
-        window.onload = function() {
+        async function fetchTripData(chatid) {
+            const response = await fetch(`http://localhost:5142/api/Trip/${chatid}`);
+            if (!response.ok) {
+                throw new Error('Network response was not ok ' + response.statusText);
+            }
+            const data = await response.json();
+            return data;
+        }
+
+        function populateTable(data) {
+            const tableBody = document.getElementById('resultsTable').getElementsByTagName('tbody')[0];
+            tableBody.innerHTML = "";
+
+            data.forEach(function(item) {
+                const row = document.createElement('tr');
+
+                const cellCity = document.createElement('td');
+                cellCity.textContent = item.City;
+                row.appendChild(cellCity);
+
+                const cellDepartureDate = document.createElement('td');
+                cellDepartureDate.textContent = item.DepartureDate;
+                row.appendChild(cellDepartureDate);
+
+                const cellArrivalDate = document.createElement('td');
+                cellArrivalDate.textContent = item.ArrivalDate;
+                row.appendChild(cellArrivalDate);
+
+                tableBody.appendChild(row);
+            });
+        }
+
+        window.onload = async function() {
             const params = getQueryParams();
-            const dataContainer = document.getElementById('data-container');
-            // Создаем новый div и добавляем его к dataContainer
-            //const dataDiv = document.createElement('div');
-            dataDiv.textContent = `Received data: ${params.data}`;
-            document.body.appendChild(dataDiv);
+
+            try {
+                const tripData = await fetchTripData(params.chatid);
+                populateTable(tripData);
+            } catch (error) {
+                console.log(error);
+            }
         };
-
-
-
-        // const siteIP = 'http://snterraiis.intranet.vdcom:8097';
-        // const authEndpoint = `${siteIP}/ServiceModel/AuthService.svc/Login`;
-        // const businessTripsEndpoint = `${siteIP}/0/rest/VdBusinessTripService/GetBusinessTrips`;
-
-        
-		
-		
-        // function populateTable(data) {
-        //     var tableBody = document.getElementById('resultsTable').getElementsByTagName('tbody')[0];
-        //     tableBody.innerHTML = "";
-
-        //     data.forEach(function(item) {
-        //         var row = document.createElement('tr');
-
-        //         var cellFirstName = document.createElement('td');
-        //         cellFirstName.textContent = item.FirstName;
-        //         row.appendChild(cellFirstName);
-
-        //         var cellLastName = document.createElement('td');
-        //         cellLastName.textContent = item.LastName;
-        //         row.appendChild(cellLastName);
-
-        //         var cellMiddleName = document.createElement('td');
-        //         cellMiddleName.textContent = item.MiddleName;
-        //         row.appendChild(cellMiddleName);
-
-        //         var cellDepartureDateTime = document.createElement('td');
-        //         cellDepartureDateTime.textContent = item.DepartureDateTime;
-        //         row.appendChild(cellDepartureDateTime);
-
-        //         var cellArrivalDateTime = document.createElement('td');
-        //         cellArrivalDateTime.textContent = item.ArrivalDateTime;
-        //         row.appendChild(cellArrivalDateTime);
-
-        //         var cellComment = document.createElement('td');
-        //         cellComment.textContent = item.Comment;
-        //         row.appendChild(cellComment);
-
-        //         tableBody.appendChild(row);
-        //     });
-        // }
-
-        // async function fetchUserData() {
-        //     const authData = await authenticateUser();
-        //     if (authData) {
-        //         await fetchBusinessTrips();
-        //     }
-        // }
-
-        // Вызов функции для получения данных о командировках после загрузки страницы
-        //window.onload = fetchUserData;
     </script>
 </body>
 </html>
