@@ -49,6 +49,7 @@
         }
         th {
             background-color: #f2f2f2;
+            color: #333;
         }
     </style>
 </head>
@@ -59,12 +60,9 @@
     <table id="resultsTable">
         <thead>
             <tr>
-                <th>Имя</th>
-                <th>Фамилия</th>
-                <th>Отчество</th>
-                <th>Дата отправления</th>
-                <th>Дата прибытия</th>
-                <th>Комментарий</th>
+                <th>Город</th>
+                <th>Дата выезда</th>
+				<th>Дата прибытия</th>
             </tr>
         </thead>
         <tbody>
@@ -75,75 +73,73 @@
     <script>
         Telegram.WebApp.ready();
 
-        function fetchUserData() {
-            // Получение ID пользователя из веб-приложения Telegram
-            var userId = Telegram.WebApp.initDataUnsafe.user.id;
-
-            var data = {
-                userId: userId
+        function getQueryParams() {
+            const params = new URLSearchParams(window.location.search);
+            return {
+                data: params.get('chatid')
             };
-
-            console.log("Preparing to send data:", JSON.stringify(data));
-
-            // Отправка данных на сервер и получение информации о командировках
-            try {
-                // Запрос к серверу для получения данных о командировках пользователя
-                fetch('http://snterraiis.intranet.vdcom:8097/0/rest/VdBusinessTripService/GetBusinessTrips', {
-                    method: 'GET',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    }
-                })
-                .then(response => response.json())
-                .then(responseData => {
-                    console.log("Data received:", responseData);
-                    populateTable(responseData);
-                })
-                .catch(error => {
-                    console.error("Error fetching data:", error);
-                });
-            } catch (error) {
-                console.error("Error sending data:", error);
-            }
         }
 
-        function populateTable(data) {
-            var tableBody = document.getElementById('resultsTable').getElementsByTagName('tbody')[0];
-            tableBody.innerHTML = "";
+        // Получаем данные и отображаем их
+        window.onload = function() {
+            const params = getQueryParams();
+            const dataContainer = document.getElementById('data-container');
+            dataContainer.textContent = `Received data: ${params.data}`;
+        };
 
-            data.forEach(function(item) {
-                var row = document.createElement('tr');
 
-                var cellFirstName = document.createElement('td');
-                cellFirstName.textContent = item.FirstName;
-                row.appendChild(cellFirstName);
 
-                var cellLastName = document.createElement('td');
-                cellLastName.textContent = item.LastName;
-                row.appendChild(cellLastName);
+        // const siteIP = 'http://snterraiis.intranet.vdcom:8097';
+        // const authEndpoint = `${siteIP}/ServiceModel/AuthService.svc/Login`;
+        // const businessTripsEndpoint = `${siteIP}/0/rest/VdBusinessTripService/GetBusinessTrips`;
 
-                var cellMiddleName = document.createElement('td');
-                cellMiddleName.textContent = item.MiddleName;
-                row.appendChild(cellMiddleName);
+        
+		
+		
+        // function populateTable(data) {
+        //     var tableBody = document.getElementById('resultsTable').getElementsByTagName('tbody')[0];
+        //     tableBody.innerHTML = "";
 
-                var cellDepartureDateTime = document.createElement('td');
-                cellDepartureDateTime.textContent = item.DepartureDateTime;
-                row.appendChild(cellDepartureDateTime);
+        //     data.forEach(function(item) {
+        //         var row = document.createElement('tr');
 
-                var cellArrivalDateTime = document.createElement('td');
-                cellArrivalDateTime.textContent = item.ArrivalDateTime;
-                row.appendChild(cellArrivalDateTime);
+        //         var cellFirstName = document.createElement('td');
+        //         cellFirstName.textContent = item.FirstName;
+        //         row.appendChild(cellFirstName);
 
-                var cellComment = document.createElement('td');
-                cellComment.textContent = item.Comment;
-                row.appendChild(cellComment);
+        //         var cellLastName = document.createElement('td');
+        //         cellLastName.textContent = item.LastName;
+        //         row.appendChild(cellLastName);
 
-                tableBody.appendChild(row);
-            });
-        }
+        //         var cellMiddleName = document.createElement('td');
+        //         cellMiddleName.textContent = item.MiddleName;
+        //         row.appendChild(cellMiddleName);
+
+        //         var cellDepartureDateTime = document.createElement('td');
+        //         cellDepartureDateTime.textContent = item.DepartureDateTime;
+        //         row.appendChild(cellDepartureDateTime);
+
+        //         var cellArrivalDateTime = document.createElement('td');
+        //         cellArrivalDateTime.textContent = item.ArrivalDateTime;
+        //         row.appendChild(cellArrivalDateTime);
+
+        //         var cellComment = document.createElement('td');
+        //         cellComment.textContent = item.Comment;
+        //         row.appendChild(cellComment);
+
+        //         tableBody.appendChild(row);
+        //     });
+        // }
+
+        // async function fetchUserData() {
+        //     const authData = await authenticateUser();
+        //     if (authData) {
+        //         await fetchBusinessTrips();
+        //     }
+        // }
 
         // Вызов функции для получения данных о командировках после загрузки страницы
-        window.onload = fetchUserData;
+        //window.onload = fetchUserData;
     </script>
 </body>
 </html>
