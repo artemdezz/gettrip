@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Прошедшие командировки</title>
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            --bg-color: var(--tg-theme-bg-color, #fff);
+            background-color: var(--bg-color);
+            color: var(--tg-theme-text-color, #222);
+            font-size: 14px;
+            margin: 0;
+            padding: 0;
+            color-scheme: var(--tg-color-scheme);
+        }
+
+        body.gray {
+            background-color: var(--tg-theme-secondary-bg-color, #efefef);
+        }
+        input, button, select {
+            margin: 10px 0;
+            padding: 10px;
+            width: 80%;
+            border-radius: 5px;
+            border: 1px solid #ccc;
+        }
+        button {
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+        }
+        table {
+            width: 80%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+        th, td {
+            padding: 10px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+        th {
+            background-color: #f2f2f2;
+        }
+    </style>
+</head>
+<body>
+    <h2>Прошедшие командировки</h2>
+
+    <h2>Результаты поиска</h2>
+    <table id="resultsTable">
+        <thead>
+            <tr>
+                <th>Имя</th>
+                <th>Фамилия</th>
+                <th>Отчество</th>
+                <th>Дата отправления</th>
+                <th>Дата прибытия</th>
+                <th>Комментарий</th>
+            </tr>
+        </thead>
+        <tbody>
+            <!-- Результаты будут добавляться здесь -->
+        </tbody>
+    </table>
+
+    <script>
+        Telegram.WebApp.ready();
+
+        function fetchUserData() {
+            // Получение ID пользователя из веб-приложения Telegram
+            var userId = Telegram.WebApp.initDataUnsafe.user.id;
+
+            var data = {
+                userId: userId
+            };
+
+            console.log("Preparing to send data:", JSON.stringify(data));
+
+            // Отправка данных на сервер и получение информации о командировках
+            try {
+                // Запрос к серверу для получения данных о командировках пользователя
+                fetch('http://snterraiis.intranet.vdcom:8097/0/rest/VdBusinessTripService/GetBusinessTrips', {
+                    method: 'GET',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
+                })
+                .then(response => response.json())
+                .then(responseData => {
+                    console.log("Data received:", responseData);
+                    populateTable(responseData);
+                })
+                .catch(error => {
+                    console.error("Error fetching data:", error);
+                });
+            } catch (error) {
+                console.error("Error sending data:", error);
+            }
+        }
+
+        function populateTable(data) {
+            var tableBody = document.getElementById('resultsTable').getElementsByTagName('tbody')[0];
+            tableBody.innerHTML = "";
+
+            data.forEach(function(item) {
+                var row = document.createElement('tr');
+
+                var cellFirstName = document.createElement('td');
+                cellFirstName.textContent = item.FirstName;
+                row.appendChild(cellFirstName);
+
+                var cellLastName = document.createElement('td');
+                cellLastName.textContent = item.LastName;
+                row.appendChild(cellLastName);
+
+                var cellMiddleName = document.createElement('td');
+                cellMiddleName.textContent = item.MiddleName;
+                row.appendChild(cellMiddleName);
+
+                var cellDepartureDateTime = document.createElement('td');
+                cellDepartureDateTime.textContent = item.DepartureDateTime;
+                row.appendChild(cellDepartureDateTime);
+
+                var cellArrivalDateTime = document.createElement('td');
+                cellArrivalDateTime.textContent = item.ArrivalDateTime;
+                row.appendChild(cellArrivalDateTime);
+
+                var cellComment = document.createElement('td');
+                cellComment.textContent = item.Comment;
+                row.appendChild(cellComment);
+
+                tableBody.appendChild(row);
+            });
+        }
+
+        // Вызов функции для получения данных о командировках после загрузки страницы
+        window.onload = fetchUserData;
+    </script>
+</body>
+</html>
